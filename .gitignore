@@ -1,0 +1,18 @@
+#dependencias
+
+node_modules/
+
+#variables de entorno y credenciales
+
+.env
+
+#registros
+
+npm-debug.log*
+
+*.log
+
+#Archivos del sistema
+
+.Ds_store
+thumbs.db
