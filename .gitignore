@@ -5,6 +5,8 @@ node_modules/
 #variables de entorno y credenciales
 
 .env
+.env.*
+!.env.example
 
 #registros
 
