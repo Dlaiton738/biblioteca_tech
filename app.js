@@ -1,5 +1,8 @@
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from'cors';
+
+import usersRouters from './routers/usersRouters.js';
+import authRouters from './routers/authRouters.js';
 
 const app = express();
 
@@ -12,4 +15,8 @@ app.get('/', (req, res) => {
     res.send('¡Bienvenido a la API REST de BiblioTech!');
 });
 
-module.exports = app;
+
+app.use('/api/users',usersRouters)
+app.use('/api/auth',authRouters)
+
+export default app;
