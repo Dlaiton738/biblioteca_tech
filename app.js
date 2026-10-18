@@ -1,8 +1,11 @@
 import express from 'express';
-import cors from'cors';
+import cors from 'cors';
 
 import usersRouters from './routers/usersRouters.js';
 import authRouters from './routers/authRouters.js';
+import authorsRouters from './routers/authorsRouters.js';
+import loansRouters from './routers/loansRouters.js';
+import booksRouters from './routers/booksRouters.js';
 
 const app = express();
 
@@ -15,8 +18,10 @@ app.get('/', (req, res) => {
     res.send('¡Bienvenido a la API REST de BiblioTech!');
 });
 
-
-app.use('/api/users',usersRouters)
-app.use('/api/auth',authRouters)
+app.use('/api/users', usersRouters);
+app.use('/api/auth', authRouters);
+app.use('/api/authors', authorsRouters);
+app.use('/api/loans', loansRouters);
+app.use('/api/books', booksRouters);
 
 export default app;
