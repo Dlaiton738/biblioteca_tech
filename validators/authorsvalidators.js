@@ -1,49 +1,55 @@
 import { check } from "express-validator";
 
-
-//validar nombre de author
-
+// Validar el ID del autor
 const authorsId = check("id")
-.isMongoId(). withMessage("el id debe ser un id de mongo valido")
+    .isMongoId()
+    .withMessage("El ID debe ser un ID de MongoDB válido");
 
-const  name = check("name")
-.trim()
-.notEmpty()
-.withMessage("el nombre es obligatorio")
-.bail()
-.isLength({min: 3, max:50})
-.withMessage("el nombre debe tener entre 3 y 50 caracteres");
+// Validar el nombre al crear un autor
+const name = check("name")
+    .trim()
+    .notEmpty()
+    .withMessage("El nombre es obligatorio")
+    .bail()
+    .isLength({ min: 3, max: 80 })
+    .withMessage("El nombre debe tener entre 3 y 80 caracteres");
 
-const nacionality = check("nacionality")
-.trim()
-.notEmpty()
-.withMessage("el nombre es obligatorio")
-.bail()
-.isLength({min: 2, max:50})
-.withMessage("la nacionalidad debe tener entre 2 y 50 caracteres");
+// Validar el nombre al actualizar un autor
+const optionalName = check("name")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("El nombre no puede estar vacío")
+    .bail()
+    .isLength({ min: 3, max: 80 })
+    .withMessage("El nombre debe tener entre 3 y 80 caracteres");
 
-const birthyear = check("birthyear")
-.notEmpty()
-.withMessage("el año de nacimiento es obligatorio")
-.bail()
-.isInt({
-    min: 1,
-    max: new Date().getFullYear(),
-})
-.withMessage("El año de nacimiento debe ser un entero valido")
-.toInt()
+const nationality = check("nationality")
+    .optional()
+    .trim()
+    .isLength({ min: 2, max: 40 })
+    .withMessage("La nacionalidad debe tener entre 2 y 40 caracteres");
+
+const birthYear = check("birthYear")
+    .optional()
+    .isInt({
+        min: 0,
+        max: new Date().getFullYear()
+    })
+    .withMessage("El año de nacimiento debe ser un entero válido")
+    .toInt();
 
 const active = check("active")
+    .optional()
+    .isBoolean()
+    .withMessage("El campo active debe ser verdadero o falso")
+    .toBoolean();
 
-.optional()
-.isBoolean()
-.withMessage("el campo active debe ser verdadero o false")
-.toBoolean();
-
-export{
+export {
     authorsId,
     name,
-    nacionality,
-    birthyear,
-    active,
+    optionalName,
+    nationality,
+    birthYear,
+    active
 };

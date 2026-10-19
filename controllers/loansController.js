@@ -40,6 +40,20 @@ export const getLoanById = async (req, res, next) => {
             });
         }
 
+        const loanUserId = loan.user?._id
+            ? loan.user._id.toString()
+            : loan.user?.toString();
+
+        if (
+            loanUserId !== req.user._id.toString() &&
+            req.user.role !== 'ADMIN'
+        ) {
+            return res.status(403).json({
+                ok: false,
+                msg: 'No tienes permiso para consultar este préstamo'
+            });
+        }
+
         return res.status(200).json({
             ok: true,
             data: loan
@@ -51,15 +65,13 @@ export const getLoanById = async (req, res, next) => {
 
 export const createLoan = async (req, res, next) => {
     try {
-        const { user, book: bookId } = req.body;
+        const user = req.user._id.toString();
+        const { book: bookId } = req.body;
 
-        if (
-            !mongoose.Types.ObjectId.isValid(user) ||
-            !mongoose.Types.ObjectId.isValid(bookId)
-        ) {
+        if (!mongoose.Types.ObjectId.isValid(bookId)) {
             return res.status(400).json({
                 ok: false,
-                msg: 'El usuario o el libro tienen un identificador no válido'
+                msg: 'El identificador del libro no es válido'
             });
         }
 
@@ -151,7 +163,6 @@ export const createLoan = async (req, res, next) => {
     }
 };
 
-
 export const returnLoan = async (req, res, next) => {
     try {
         const { _id } = req.params;
@@ -163,51 +174,54 @@ export const returnLoan = async (req, res, next) => {
             });
         }
 
-        // Buscar el préstamo
         const loan = await Loan.findById(_id);
 
         if (!loan) {
             return res.status(404).json({
                 ok: false,
-                mensaje: 'El préstamo no existe'
+                msg: 'El préstamo no existe'
             });
         }
 
-        // Comprobar que el préstamo esté activo
+        if (
+            loan.user.toString() !== req.user._id.toString() &&
+            req.user.role !== 'ADMIN'
+        ) {
+            return res.status(403).json({
+                ok: false,
+                msg: 'No tienes permiso para devolver este préstamo'
+            });
+        }
+
         if (loan.status !== 'ACTIVE') {
             return res.status(400).json({
                 ok: false,
-                mensaje: 'Este préstamo ya fue devuelto'
+                msg: 'Este préstamo ya fue devuelto'
             });
         }
 
-        // Buscar el libro del préstamo
         const book = await Book.findById(loan.book);
 
         if (!book) {
             return res.status(404).json({
                 ok: false,
-                mensaje: 'El libro no existe'
+                msg: 'El libro no existe'
             });
         }
 
-        // Registrar la devolución
         loan.status = 'RETURNED';
         loan.returnDate = new Date();
 
         await loan.save();
 
-        // Aumentar las copias disponibles
         book.availableCopies += 1;
-
         await book.save();
 
         return res.status(200).json({
             ok: true,
-            mensaje: 'Libro devuelto correctamente',
+            msg: 'Libro devuelto correctamente',
             data: loan
         });
-
     } catch (error) {
         next(error);
     }

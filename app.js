@@ -18,6 +18,7 @@ app.get('/', (req, res) => {
     res.send('¡Bienvenido a la API REST de BiblioTech!');
 });
 
+app.use("/api/books", booksRouters);
 app.use('/api/users', usersRouters);
 app.use('/api/auth', authRouters);
 app.use('/api/authors', authorsRouters);
