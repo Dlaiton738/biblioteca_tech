@@ -19,7 +19,7 @@ import {
     nationality,
     birthYear,
     active
-} from "../validators/authorsvalidators.js";
+} from "../validators/authorsValidators.js";
 
 const router = Router();
 
@@ -40,6 +40,17 @@ router.get("/:id", [
 ], getAuthorbyID);
 
 router.patch("/:id", [
+    validarJWT,
+    tieneRol("ADMIN"),
+    authorsId,
+    optionalName,
+    nationality,
+    birthYear,
+    active,
+    validarCampos
+], updateAuthors);
+
+router.put("/:id", [
     validarJWT,
     tieneRol("ADMIN"),
     authorsId,

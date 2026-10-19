@@ -104,10 +104,9 @@ export const getUsers = async (req, res, next) => {
 };
 
 
-
 export const updateUserRole = async (req, res, next) => {
     try {
-        const  id  = req.params.id;
+        const id = req.params.id;
         const { role } = req.body;
 
         if (!["USER", "ADMIN"].includes(role)) {
@@ -117,14 +116,7 @@ export const updateUserRole = async (req, res, next) => {
             });
         }
 
-        const user = await Users.findByIdAndUpdate(
-            id,
-            { role },
-            {
-                new: true,
-                runValidators: true
-            }
-        );
+        const user = await Users.findById(id);
 
         if (!user) {
             return res.status(404).json({
@@ -133,9 +125,14 @@ export const updateUserRole = async (req, res, next) => {
             });
         }
 
+        user.role = role;
+        await user.save();
+
+        const { password, ...userSinPassword } = user.toObject();
+
         return res.status(200).json({
             ok: true,
-            data: user
+            data: userSinPassword
         });
     } catch (error) {
         next(error);
