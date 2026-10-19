@@ -18,6 +18,24 @@ export const getLoans = async (req, res, next) => {
     }
 };
 
+export const getOverdueLoans = async (req, res, next) => {
+    try {
+        const loans = await Loan.find({
+            status: 'ACTIVE',
+            dueDate: { $lt: new Date() }
+        })
+            .populate('user', 'name email role')
+            .populate('book');
+
+        return res.status(200).json({
+            ok: true,
+            data: loans
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const getLoanById = async (req, res, next) => {
     try {
         const { _id } = req.params;
