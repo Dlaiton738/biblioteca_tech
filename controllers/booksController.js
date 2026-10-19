@@ -3,19 +3,85 @@ import Book from '../models/books.js';
 import Loan from '../models/loans.js';
 import Authors from '../models/authors.js';
 
+
 export const getBooks = async (req, res, next) => {
     try {
-        const books = await Book.find()
-            .populate('author', 'name');
+        const page = Math.max(1, parseInt(req.query.page) || 1);
+        const limit = Math.min(50, Math.max(1, parseInt(req.query.limit) || 10));
+        const skip = (page - 1) * limit;
+
+        const filter = {};
+
+        // Filtrar por género
+        if (req.query.genre) {
+            filter.genre = req.query.genre;
+        }
+
+        // Filtrar por estado activo
+        if (req.query.active !== undefined) {
+            if (!['true', 'false'].includes(req.query.active)) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'El filtro active debe ser true o false'
+                });
+            }
+
+            filter.active = req.query.active === 'true';
+        }
+
+        // Buscar por título, sin distinguir mayúsculas y minúsculas
+        if (req.query.title) {
+            filter.title = {
+                $regex: req.query.title.trim(),
+                $options: 'i'
+            };
+        }
+
+        // Ordenar resultados
+        const allowedSortFields = ['title', 'year', 'createdAt'];
+        const sortBy = req.query.sortBy || 'title';
+        const order = req.query.order || 'asc';
+
+        if (!allowedSortFields.includes(sortBy)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El campo de ordenamiento no es válido'
+            });
+        }
+
+        if (!['asc', 'desc'].includes(order)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El orden debe ser asc o desc'
+            });
+        }
+
+        const sort = {
+            [sortBy]: order === 'asc' ? 1 : -1
+        };
+
+        const [total, books] = await Promise.all([
+            Book.countDocuments(filter),
+            Book.find(filter)
+                .populate('author', 'name')
+                .sort(sort)
+                .skip(skip)
+                .limit(limit)
+        ]);
 
         return res.status(200).json({
             ok: true,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
             books
         });
     } catch (error) {
         next(error);
     }
 };
+
 
 export const availableBooks = async (req, res, next) => {
     try {
@@ -86,7 +152,13 @@ export const createBook = async (req, res, next) => {
             });
         }
 
-        const nuevo = await Book.create(req.body);
+        const { totalCopies, ...datosLibro } = req.body;
+
+        const nuevo = await Book.create({
+            ...datosLibro,
+            totalCopies,
+            availableCopies: totalCopies
+        });
 
         return res.status(201).json({
             ok: true,
@@ -113,7 +185,7 @@ export const createBook = async (req, res, next) => {
 
 export const updateBook = async (req, res, next) => {
     try {
-        const  id  = req.params.id;
+        const id = req.params.id;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({
@@ -187,6 +259,20 @@ export const updateBook = async (req, res, next) => {
             });
         }
 
+        if (req.body.active === false && book.active === true) {
+            const activeLoans = await Loan.countDocuments({
+                book: book._id,
+                status: 'ACTIVE'
+            });
+
+            if (activeLoans > 0) {
+                return res.status(409).json({
+                    ok: false,
+                    msg: 'No se puede desactivar un libro que tiene préstamos activos'
+                });
+            }
+        }
+
         const fields = [
             'title',
             'isbn',
@@ -225,3 +311,49 @@ export const updateBook = async (req, res, next) => {
         next(error);
     }
 };
+
+
+export const deleteBook = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El identificador del libro no es válido'
+            });
+        }
+
+        const book = await Book.findById(id);
+
+        if (!book || !book.active) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Libro no encontrado o ya está desactivado'
+            });
+        }
+
+        const activeLoans = await Loan.countDocuments({
+            book: book._id,
+            status: 'ACTIVE'
+        });
+
+        if (activeLoans > 0) {
+            return res.status(409).json({
+                ok: false,
+                msg: 'No se puede desactivar un libro que tiene préstamos activos'
+            });
+        }
+
+        book.active = false;
+        await book.save();
+
+        return res.status(200).json({
+            ok: true,
+            msg: 'Libro desactivado correctamente'
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
