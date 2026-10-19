@@ -14,7 +14,7 @@ const  name = check("name")
 .isLength({min: 3, max:50})
 .withMessage("el nombre debe tener entre 3 y 50 caracteres");
 
-const nacionality = check("nacionalityq")
+const nacionality = check("nacionality")
 .trim()
 .notEmpty()
 .withMessage("el nombre es obligatorio")
