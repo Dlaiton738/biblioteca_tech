@@ -165,19 +165,19 @@ export const createBook = async (req, res, next) => {
             book: nuevo
         });
     } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({
-                ok: false,
-                msg: 'Ya existe un libro con ese ISBN'
-            });
-        }
+        // if (error.code === 11000) {
+        //     return res.status(400).json({
+        //         ok: false,
+        //         msg: 'Ya existe un libro con ese ISBN'
+        //     });
+        // }
 
-        if (error.name === 'ValidationError' || error.name === 'CastError') {
-            return res.status(400).json({
-                ok: false,
-                msg: error.message
-            });
-        }
+        // if (error.name === 'ValidationError' || error.name === 'CastError') {
+        //     return res.status(400).json({
+        //         ok: false,
+        //         msg: error.message
+        //     });
+        // }
 
         next(error);
     }
@@ -294,19 +294,19 @@ export const updateBook = async (req, res, next) => {
             book
         });
     } catch (error) {
-        if (error.code === 11000) {
-            return res.status(400).json({
-                ok: false,
-                msg: 'Ya existe un libro con ese ISBN'
-            });
-        }
+        // if (error.code === 11000) {
+        //     return res.status(400).json({
+        //         ok: false,
+        //         msg: 'Ya existe un libro con ese ISBN'
+        //     });
+        // }
 
-        if (error.name === 'ValidationError' || error.name === 'CastError') {
-            return res.status(400).json({
-                ok: false,
-                msg: error.message
-            });
-        }
+        // if (error.name === 'ValidationError' || error.name === 'CastError') {
+        //     return res.status(400).json({
+        //         ok: false,
+        //         msg: error.message
+        //     });
+        // }
 
         next(error);
     }
