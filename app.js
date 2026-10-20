@@ -6,6 +6,7 @@ import authRouters from './routers/authRouters.js';
 import authorsRouters from './routers/authorsRouters.js';
 import loansRouters from './routers/loansRouters.js';
 import booksRouters from './routers/booksRouters.js';
+import manejarErrores from './middlewares/manejarErrores.js';
 
 const app = express();
 
@@ -23,6 +24,9 @@ app.use('/api/users', usersRouters);
 app.use('/api/auth', authRouters);
 app.use('/api/authors', authorsRouters);
 app.use('/api/loans', loansRouters);
-app.use('/api/books', booksRouters);
+
+
+// Middleware centralizado para manejar errores
+app.use(manejarErrores);
 
 export default app;
