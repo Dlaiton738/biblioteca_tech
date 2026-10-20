@@ -1,6 +1,4 @@
-
 import { check, param, query } from 'express-validator';
-
 
 const loanId = param('_id')
     .isMongoId()
