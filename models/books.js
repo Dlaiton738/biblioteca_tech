@@ -32,6 +32,7 @@ const BookSchema = new Schema({
         type: String,
         required: true,
         enum: [
+            'accion',
             'novela',
             'cuento',
             'poesia',

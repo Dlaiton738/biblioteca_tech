@@ -27,7 +27,7 @@ router.get('/', [
 ], getBooks);
 
 // Consultar libros disponibles
-router.get('/available', availableBooks);
+router.get('/available', availableBooks);   
 
 // Consultar un libro por ID
 router.get('/:id', [
