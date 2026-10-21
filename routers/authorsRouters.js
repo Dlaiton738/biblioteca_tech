@@ -23,7 +23,9 @@ import {
 
 const router = Router();
 
-router.get("/", getAuthors);
+router.get("/", 
+    validarJWT,
+    getAuthors);
 
 router.post("/", [
     validarJWT,
