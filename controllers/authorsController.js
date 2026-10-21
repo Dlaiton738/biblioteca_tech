@@ -136,12 +136,12 @@ export const updateAuthors = async (req, res, next) => {
 
         const author = await Authors.findById(id);
 
-        if (!author || !author.active) {
-            return res.status(404).json({
-                ok: false,
-                msg: "Autor no encontrado"
-            });
-        }
+        if (!author) {
+        return res.status(404).json({
+        ok: false,
+        msg: "Autor no encontrado"
+        });
+    }
 
         const { name, nationality, birthYear, active } = req.body;
 
