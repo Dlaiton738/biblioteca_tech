@@ -101,7 +101,8 @@ const bookQuery = [
             'ensayo',
             'tecnologia',
             'historia',
-            'infantil'
+            'infantil',
+            'accion'
         ])
         .withMessage('El género no es válido'),
 
