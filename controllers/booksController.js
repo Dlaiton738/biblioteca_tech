@@ -63,6 +63,7 @@ export const getBooks = async (req, res, next) => {
         const [total, books] = await Promise.all([
             Book.countDocuments(filter),
             Book.find(filter)
+                .collation({ locale: 'es', strength: 2 })
                 .populate('author', 'name')
                 .sort(sort)
                 .skip(skip)

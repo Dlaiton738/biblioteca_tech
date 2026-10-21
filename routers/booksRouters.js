@@ -52,6 +52,15 @@ router.put('/:id', [
     validarCampos
 ], updateBook);
 
+router.patch('/:id',[
+    validarJWT,
+    tieneRol('ADMIN'),
+    bookId,
+    ...updateBookValidators,
+    validarCampos
+], updateBook
+)
+
 // Desactivar libro: solo ADMIN
 router.delete('/:id', [
     validarJWT,
